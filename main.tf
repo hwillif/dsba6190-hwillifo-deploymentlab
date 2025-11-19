@@ -31,7 +31,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 
-// Storage Account.
+// Storage Account
 
 resource "azurerm_storage_account" "storage" {
   name                     = "sto${var.class_name}${var.student_name}${random_integer.deployment_id_suffix.result}"
