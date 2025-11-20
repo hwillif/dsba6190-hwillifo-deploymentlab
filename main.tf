@@ -31,6 +31,23 @@ resource "azurerm_resource_group" "rg" {
 }
 
 
+// Create a virtual network within the resource group
+
+resource "azurerm_virtual_network" "vm" {
+  name                = "example-network"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  address_space       = ["10.0.0.0/16"]
+
+// Create a subnet within the resource group
+resource "azurerm_subnet" "subnet" {
+  name                 = "subnetname"
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.2.0/24"]
+  service_endpoints    = ["Microsoft.Sql", "Microsoft.Storage"]
+}
+
 // Storage Account
 
 resource "azurerm_storage_account" "storage" {
@@ -40,5 +57,54 @@ resource "azurerm_storage_account" "storage" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
+  network_rules {
+    default_action              = "Deny"
+    ip_rules                    = ["192.168.86.133"]
+    virtual_network_subnet_ids  = [azurerm_subnet.storage.id]
+  }
+
   tags = local.tags
+
+  # Enable the hierachical namespace
+  is_hns_enabled = true
+}
+
+// SQL Server
+
+resource "azurerm_mssql_server" "sqlserver" {
+  name                         = "example-sqlserver"
+  resource_group_name          = azurerm_resource_group.example.name
+  location                     = azurerm_resource_group.example.location
+  version                      = "12.0"
+  administrator_login          = "haydenwilliford"
+  administrator_login_password = "4-v3ry-53cr37-p455w0rd"
+}
+
+// SQL Database
+
+resource "azurerm_mssql_database" "sqldatabase" {
+  name         = "example-db"
+  server_id    = azurerm_mssql_server.example.id
+  collation    = "SQL_Latin1_General_CP1_CI_AS"
+  license_type = "LicenseIncluded"
+  max_size_gb  = 2
+  sku_name     = "S0"
+  enclave_type = "VBS"
+
+  tags = {
+    foo = "bar"
+  }
+  
+  # prevent the possibility of accidental data loss
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+// Virtual Network Rule within resource group
+
+resource "azurerm_mssql_virtual_network_rule" "vnet_rule" {
+  name      = "sql-vnet-rule"
+  server_id = azurerm_mssql_server.example.id
+  subnet_id = azurerm_subnet.example.id
 }
