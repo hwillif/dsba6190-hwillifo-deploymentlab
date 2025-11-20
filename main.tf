@@ -34,7 +34,7 @@ resource "azurerm_resource_group" "rg" {
 // Create a virtual network within the resource group
 
 resource "azurerm_virtual_network" "vnetwork" {
-  name                = "example-network"
+  name                = "hwilli-network"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   address_space       = ["10.0.0.0/16"]
@@ -42,9 +42,9 @@ resource "azurerm_virtual_network" "vnetwork" {
 
 // Create a subnet within the resource group
 resource "azurerm_subnet" "subnet" {
-  name                 = "subnetname"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
+  name                 = "subnethwilli"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnetwork.name
   address_prefixes     = ["10.0.2.0/24"]
   service_endpoints    = ["Microsoft.Sql", "Microsoft.Storage"]
 }
@@ -73,9 +73,9 @@ resource "azurerm_storage_account" "storage" {
 // SQL Server
 
 resource "azurerm_mssql_server" "sqlserver" {
-  name                         = "example-sqlserver"
-  resource_group_name          = azurerm_resource_group.example.name
-  location                     = azurerm_resource_group.example.location
+  name                         = "hwilli-sqlserver"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
   version                      = "12.0"
   administrator_login          = "haydenwilliford"
   administrator_login_password = "4-v3ry-53cr37-p455w0rd"
@@ -85,7 +85,7 @@ resource "azurerm_mssql_server" "sqlserver" {
 
 resource "azurerm_mssql_database" "sqldatabase" {
   name         = "example-db"
-  server_id    = azurerm_mssql_server.example.id
+  server_id    = azurerm_mssql_server.sqlserver.id
   collation    = "SQL_Latin1_General_CP1_CI_AS"
   license_type = "LicenseIncluded"
   max_size_gb  = 2
@@ -106,6 +106,6 @@ resource "azurerm_mssql_database" "sqldatabase" {
 
 resource "azurerm_mssql_virtual_network_rule" "vnet_rule" {
   name      = "sql-vnet-rule"
-  server_id = azurerm_mssql_server.example.id
-  subnet_id = azurerm_subnet.example.id
+  server_id = azurerm_mssql_server.sqlserver.id
+  subnet_id = azurerm_subnet.subnet.id
 }
