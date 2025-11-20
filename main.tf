@@ -41,8 +41,9 @@ resource "azurerm_virtual_network" "vnetwork" {
 }
 
 // Create a subnet within the resource group
+
 resource "azurerm_subnet" "subnet" {
-  name                 = "subnethwilli"
+  name                 = "subnet-hwilli"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnetwork.name
   address_prefixes     = ["10.0.2.0/24"]
@@ -61,7 +62,7 @@ resource "azurerm_storage_account" "storage" {
   network_rules {
     default_action             = "Deny"
     ip_rules                   = ["192.168.86.133"]
-    virtual_network_subnet_ids = [azurerm_subnet.storage.id]
+    virtual_network_subnet_ids = [azurerm_subnet.subnet.id]
   }
 
   tags = local.tags
