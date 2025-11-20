@@ -85,7 +85,7 @@ resource "azurerm_mssql_server" "sqlserver" {
 // SQL Database
 
 resource "azurerm_mssql_database" "sqldatabase" {
-  name         = "example-db"
+  name         = "hwilli-db"
   server_id    = azurerm_mssql_server.sqlserver.id
   collation    = "SQL_Latin1_General_CP1_CI_AS"
   license_type = "LicenseIncluded"
