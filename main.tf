@@ -38,6 +38,7 @@ resource "azurerm_virtual_network" "vnetwork" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   address_space       = ["10.0.0.0/16"]
+}
 
 // Create a subnet within the resource group
 resource "azurerm_subnet" "subnet" {
@@ -58,9 +59,9 @@ resource "azurerm_storage_account" "storage" {
   account_replication_type = "LRS"
 
   network_rules {
-    default_action              = "Deny"
-    ip_rules                    = ["192.168.86.133"]
-    virtual_network_subnet_ids  = [azurerm_subnet.storage.id]
+    default_action             = "Deny"
+    ip_rules                   = ["192.168.86.133"]
+    virtual_network_subnet_ids = [azurerm_subnet.storage.id]
   }
 
   tags = local.tags
@@ -94,7 +95,7 @@ resource "azurerm_mssql_database" "sqldatabase" {
   tags = {
     foo = "bar"
   }
-  
+
   # prevent the possibility of accidental data loss
   lifecycle {
     prevent_destroy = true
